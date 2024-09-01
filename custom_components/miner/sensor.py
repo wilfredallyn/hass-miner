@@ -6,6 +6,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.components.sensor import SensorStateClass
@@ -69,11 +70,19 @@ ENTITY_DESCRIPTION_KEY_MAP: dict[str, MinerSensorEntityDescription] = {
         key="Power Limit",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
     ),
     "miner_consumption": MinerSensorEntityDescription(
         key="Miner Consumption",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+    ),
+    "miner_consumption_kw": MinerSensorEntityDescription(
+        key="Miner Consumption (kW)",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfPower.KILO_WATT,
+        device_class=SensorDeviceClass.POWER,
     ),
     "efficiency": MinerSensorEntityDescription(
         key="Efficiency",
@@ -131,20 +140,6 @@ async def async_setup_entry(
             entity_description=description,
         )
 
-    def _create_kw_sensor(sensor: MinerSensor) -> MinerSensor:
-        """Create a kilowatt sensor entity."""
-        kw_sensor = MinerSensor(
-            coordinator=sensor.coordinator,
-            sensor=f"{sensor._sensor}_kw",
-            entity_description=MinerSensorEntityDescription(
-                key=f"{sensor.entity_description.key} (kW)",
-                native_unit_of_measurement="kW",
-                state_class=sensor.entity_description.state_class,
-            ),
-        )
-        kw_sensor._state = lambda: sensor.state / 1000  # Convert W to kW
-        return kw_sensor
-
     await coordinator.async_config_entry_first_refresh()
 
     sensors = []
@@ -152,7 +147,9 @@ async def async_setup_entry(
         miner_sensor = _create_miner_entity(s)
         sensors.append(miner_sensor)
         if s == "miner_consumption":
-            sensors.append(_create_kw_sensor(miner_sensor))
+            kw_sensor = _create_miner_entity("miner_consumption_kw")
+            kw_sensor._state = lambda: miner_sensor.state / 1000  # Convert W to kW
+            sensors.append(kw_sensor)
 
     for board in range(coordinator.miner.expected_hashboards):
         for s in ["board_temperature", "chip_temperature", "board_hashrate"]:
