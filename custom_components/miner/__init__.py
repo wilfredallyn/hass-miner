@@ -7,6 +7,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
+from .automate import async_setup_power_adjustment
 from .const import CONF_IP
 from .const import DOMAIN
 from .coordinator import MinerCoordinator
@@ -32,6 +33,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     await async_setup_services(hass)
+
+    await async_setup_power_adjustment(hass)
 
     return True
 
