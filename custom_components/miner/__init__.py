@@ -26,15 +26,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise ConfigEntryNotReady("Miner could not be found.")
 
     m_coordinator = MinerCoordinator(hass, entry)
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = m_coordinator
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {"coordinator": m_coordinator}
 
     await m_coordinator.async_config_entry_first_refresh()
+
+    power_adjustment = await async_setup_power_adjustment(hass, entry)
+    hass.data[DOMAIN][entry.entry_id]["power_adjustment"] = power_adjustment
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     await async_setup_services(hass)
-
-    await async_setup_power_adjustment(hass)
 
     return True
 
@@ -44,5 +45,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
-
     return unload_ok
