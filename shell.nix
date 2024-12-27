@@ -1,4 +1,10 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {
+    config = {};
+    overlays = [];
+    extraNixpkgsArgs.config.allowUnfree = true;
+    nixConfig.extra-experimental-features = [ "nix-command" "flakes" ];
+  }
+}:
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
@@ -6,6 +12,7 @@ pkgs.mkShell {
     poetry
     python3
     python3Packages.pip
+    python3Packages.pydantic
     python3.pkgs.virtualenv
     python3.pkgs.jupyter
     python3.pkgs.jupyterlab
@@ -31,7 +38,6 @@ pkgs.mkShell {
 
     # pip install pyasic
     pip install nest-asyncio
-    
     # Install and register the kernel
     pip install ipykernel
     python -m ipykernel install --user --name=venv --display-name="Python (venv)"
