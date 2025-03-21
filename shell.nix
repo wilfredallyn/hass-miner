@@ -33,7 +33,8 @@ pkgs.mkShell {
 
     # Install pyasic dependencies using poetry
     cd ../pyasic
-    poetry install --no-root
+    poetry install --no-root --with docs
+    pre-commit install
     cd -
 
     # pip install pyasic
