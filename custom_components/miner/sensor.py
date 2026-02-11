@@ -68,6 +68,21 @@ ENTITY_DESCRIPTION_KEY_MAP: dict[str, SensorEntityDescription] = {
         device_class=SensorDeviceClass.ENUM,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+    "preset_power": SensorEntityDescription(
+        key="Preset Target Power",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    "preset_hashrate": SensorEntityDescription(
+        key="Preset Target Hashrate",
+        native_unit_of_measurement=TERA_HASH_PER_SECOND,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    "preset_frequency": SensorEntityDescription(
+        key="Preset Frequency",
+        native_unit_of_measurement="MHz",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
     "board_hashrate": SensorEntityDescription(
         key="Board Hashrate",
         native_unit_of_measurement=TERA_HASH_PER_SECOND,
