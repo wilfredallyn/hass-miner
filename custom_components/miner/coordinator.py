@@ -48,6 +48,9 @@ DEFAULT_DATA = {
         "hashrate": 0,
         "ideal_hashrate": 0,
         "active_preset_name": None,
+        "preset_power": None,
+        "preset_hashrate": None,
+        "preset_frequency": None,
         "temperature": 0,
         "power_limit": 0,
         "miner_consumption": 0,
@@ -57,6 +60,14 @@ DEFAULT_DATA = {
     "fan_sensors": {},
     "config": {},
 }
+
+
+def _get_preset_attr(config, attr: str):
+    """Safely extract an attribute from the active preset."""
+    try:
+        return getattr(config.mining_mode.active_preset, attr)
+    except AttributeError:
+        return None
 
 
 class MinerCoordinator(DataUpdateCoordinator):
@@ -182,10 +193,10 @@ class MinerCoordinator(DataUpdateCoordinator):
         except TypeError:
             expected_hashrate = None
 
-        try:
-            active_preset = miner_data.config.mining_mode.active_preset.name
-        except AttributeError:
-            active_preset = None
+        active_preset = _get_preset_attr(miner_data.config, "name")
+        preset_power = _get_preset_attr(miner_data.config, "power")
+        preset_hashrate = _get_preset_attr(miner_data.config, "hashrate")
+        preset_frequency = _get_preset_attr(miner_data.config, "frequency")
 
         data = {
             "hostname": miner_data.hostname,
@@ -199,6 +210,9 @@ class MinerCoordinator(DataUpdateCoordinator):
                 "hashrate": hashrate,
                 "ideal_hashrate": expected_hashrate,
                 "active_preset_name": active_preset,
+                "preset_power": preset_power,
+                "preset_hashrate": preset_hashrate,
+                "preset_frequency": preset_frequency,
                 "temperature": miner_data.temperature_avg,
                 "power_limit": miner_data.wattage_limit,
                 "miner_consumption": miner_data.wattage,
