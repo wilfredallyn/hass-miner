@@ -174,6 +174,7 @@ class MinerSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator=coordinator)
         self._attr_unique_id = f"{self.coordinator.data['mac']}-{sensor}"
+        self._attr_force_update = True
         self._sensor = sensor
         self.entity_description = entity_description
 
@@ -227,6 +228,7 @@ class MinerBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator=coordinator)
         self._attr_unique_id = f"{self.coordinator.data['mac']}-{board_num}-{sensor}"
+        self._attr_force_update = True
         self._board_num = board_num
         self._sensor = sensor
         self.entity_description = entity_description
